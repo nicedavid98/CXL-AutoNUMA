@@ -39,6 +39,9 @@ static LIST_HEAD(memory_tiers);
 static struct node_memory_type_map node_memory_types[MAX_NUMNODES];
 struct memory_dev_type *default_dram_type;
 
+/* memory_dev_type 으로 CXL을 새로 생성 */
+static struct memory_dev_type *default_cxl_type;
+
 static struct bus_type memory_tier_subsys = {
 	.name = "memory_tiering",
 	.dev_name = "memory_tier",
@@ -492,7 +495,16 @@ static struct memory_tier *set_node_memory_tier(int node)
 	if (!node_state(node, N_MEMORY))
 		return ERR_PTR(-EINVAL);
 
-	__init_node_memory_type(node, default_dram_type);
+	/*
+ 	 * CXL 에뮬레이션 노드를 위한 메모리 타입 init 설정
+	 * Node 0 : DRAM Node
+	 * Node 1 : CXL-Emulated-Node
+	 */
+	// __init_node_memory_type(node, default_dram_type);
+	if (node < 1)
+ 		__init_node_memory_type(node, default_dram_type);
+	else
+		__init_node_memory_type(node, default_cxl_type);
 
 	memtype = node_memory_types[node].memtype;
 	node_set(node, memtype->nodes);
@@ -809,6 +821,13 @@ static int __init memory_tier_init(void)
 		panic("%s() failed to allocate default DRAM tier\n", __func__);
 
 	/*
+	 * CXL 메모리 타입에 대한 메모리 티어 할당을 위한 코드 추가
+	 */
+	default_cxl_type = alloc_memory_type(MEMTIER_ADISTANCE_CXL);
+	if (IS_ERR(default_cxl_type))
+		panic("%s() failed to allocate default CXL tier\n", __func__);
+
+	/*
 	 * Look at all the existing N_MEMORY nodes and add them to
 	 * default memory tier or to a tier if we already have memory
 	 * types assigned.
@@ -889,3 +908,4 @@ delete_obj:
 subsys_initcall(numa_init_sysfs);
 #endif /* CONFIG_SYSFS */
 #endif
+

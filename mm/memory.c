@@ -4988,6 +4988,7 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	else
 		last_cpupid = folio_last_cpupid(folio);
 	target_nid = numa_migrate_prep(folio, vma, vmf->address, nid, &flags);
+	
 	if (target_nid == NUMA_NO_NODE) {
 		folio_put(folio);
 		goto out_map;
