@@ -250,29 +250,38 @@ static struct memory_tier *__node_get_memory_tier(int node)
 }
 
 #ifdef CONFIG_MIGRATION
+/*
+ * node_is_toptier 함수 호출 시 모든 노드에 대해 true로 반환되는 문제 해결을 위한 코드 수정.
+ * 현재 실험환경에서 DRAM을 나타내는 노드는 0, CXL을 나타내는 노드가 1
+ */
 bool node_is_toptier(int node)
 {
-	bool toptier;
-	pg_data_t *pgdat;
-	struct memory_tier *memtier;
+// 	bool toptier;
+// 	pg_data_t *pgdat;
+// 	struct memory_tier *memtier;
 
-	pgdat = NODE_DATA(node);
-	if (!pgdat)
-		return false;
+// 	pgdat = NODE_DATA(node);
+// 	if (!pgdat)
+// 		return false;
 
-	rcu_read_lock();
-	memtier = rcu_dereference(pgdat->memtier);
-	if (!memtier) {
-		toptier = true;
-		goto out;
-	}
-	if (memtier->adistance_start <= top_tier_adistance)
-		toptier = true;
+// 	rcu_read_lock();
+// 	memtier = rcu_dereference(pgdat->memtier);
+// 	if (!memtier) {
+// 		toptier = true;
+// 		goto out;
+// 	}
+// 	if (memtier->adistance_start <= top_tier_adistance)
+// 		toptier = true;
+// 	else
+// 		toptier = false;
+// out:
+// 	rcu_read_unlock();
+// 	return toptier;
+	
+	if (node == 0)
+		return true;
 	else
-		toptier = false;
-out:
-	rcu_read_unlock();
-	return toptier;
+		return false;
 }
 
 void node_get_allowed_targets(pg_data_t *pgdat, nodemask_t *targets)
