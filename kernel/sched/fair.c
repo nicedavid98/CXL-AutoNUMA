@@ -1828,7 +1828,10 @@ static void numa_promotion_adjust_threshold(struct pglist_data *pgdat,
 		// th = 250;
 
 		/* th 값을 고정된 100으로 설정 */
-		th = 100;
+		// th = 100;
+
+		/* th 값을 고정된 1000으로 설정 */
+		th = 1000;
 		
 		pgdat->nbp_th_nr_cand = nr_cand;
 		pgdat->nbp_threshold = th;
