@@ -1815,11 +1815,11 @@ static void numa_promotion_adjust_threshold(struct pglist_data *pgdat,
 		unit_th = ref_th * 2 / NUMA_MIGRATION_ADJUST_STEPS;
 		th = pgdat->nbp_threshold ? : ref_th;
 
-		/* 기존 threshold 계산 로직 주석 처리 */
-		// if (diff_cand > ref_cand * 11 / 10)
-		// 	th = max(th - unit_th, unit_th);
-		// else if (diff_cand < ref_cand * 9 / 10)
-		// 	th = min(th + unit_th, ref_th * 2);
+		// /* 기존 threshold 계산 로직 주석 처리 */
+		if (diff_cand > ref_cand * 11 / 10)
+			th = max(th - unit_th, unit_th);
+		else if (diff_cand < ref_cand * 9 / 10)
+			th = min(th + unit_th, ref_th * 2);
 
 		// /* th 값을 고정된 500으로 설정 */
 		// th = 500;
@@ -1831,7 +1831,7 @@ static void numa_promotion_adjust_threshold(struct pglist_data *pgdat,
 		// th = 100;
 
 		/* th 값을 고정된 1000으로 설정 */
-		th = 1000;
+		// th = 1000;
 		
 		pgdat->nbp_th_nr_cand = nr_cand;
 		pgdat->nbp_threshold = th;
@@ -1863,8 +1863,13 @@ bool should_numa_migrate_memory(struct task_struct *p, struct folio *folio,
 		}
 
 		def_th = sysctl_numa_balancing_hot_threshold;
-		rate_limit = sysctl_numa_balancing_promote_rate_limit << \
+		// rate_limit = sysctl_numa_balancing_promote_rate_limit << \
+		// 	(20 - PAGE_SHIFT);
+
+		// 버그로 의심되는 부분 수정.
+		rate_limit = sysctl_numa_balancing_promote_rate_limit >> \
 			(20 - PAGE_SHIFT);
+
 		numa_promotion_adjust_threshold(pgdat, rate_limit, def_th);
 
 		th = pgdat->nbp_threshold ? : def_th;
