@@ -1791,7 +1791,7 @@ static bool numa_promotion_rate_limit(struct pglist_data *pgdat,
 		pgdat->nbp_rl_nr_cand = nr_cand;
 	
 	// nr_cand - pgdat->nbp_rl_nr_cand >= rate_limit 확인을 위한 로그 출력
-	pr_info("%u, %u, %lu\n", nr_cand, pgdat->nbp_rl_nr_cand, rate_limit);
+	pr_info("%lu, %lu, %lu\n", nr_cand, pgdat->nbp_rl_nr_cand, rate_limit);
 
 	if (nr_cand - pgdat->nbp_rl_nr_cand >= rate_limit)
 		return true;
