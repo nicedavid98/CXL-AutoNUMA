@@ -1789,6 +1789,10 @@ static bool numa_promotion_rate_limit(struct pglist_data *pgdat,
 	if (now - start > MSEC_PER_SEC &&
 	    cmpxchg(&pgdat->nbp_rl_start, start, now) == start)
 		pgdat->nbp_rl_nr_cand = nr_cand;
+	
+	// nr_cand - pgdat->nbp_rl_nr_cand >= rate_limit 확인을 위한 로그 출력
+	pr_info("%u, %u, %lu\n", nr_cand, pgdat->nbp_rl_nr_cand, rate_limit);
+
 	if (nr_cand - pgdat->nbp_rl_nr_cand >= rate_limit)
 		return true;
 	return false;
@@ -1856,7 +1860,7 @@ bool should_numa_migrate_memory(struct task_struct *p, struct folio *folio,
 		latency = numa_hint_fault_latency(folio);
 
 		// 로그 출력 코드 추가
-    	pr_info("th=%u, l=%u\n", th, latency);
+    	// pr_info("th=%u, l=%u\n", th, latency);
 		
 		if (latency >= th)
 			return false;
