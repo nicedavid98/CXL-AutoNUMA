@@ -1852,7 +1852,11 @@ bool should_numa_migrate_memory(struct task_struct *p, struct folio *folio,
 		}
 
 		def_th = sysctl_numa_balancing_hot_threshold;
-		rate_limit = sysctl_numa_balancing_promote_rate_limit << \
+		// rate_limit = sysctl_numa_balancing_promote_rate_limit << \
+		// 	(20 - PAGE_SHIFT);
+		
+		// 오류로 의심되는 부분 수정
+		rate_limit = sysctl_numa_balancing_promote_rate_limit >> \
 			(20 - PAGE_SHIFT);
 		numa_promotion_adjust_threshold(pgdat, rate_limit, def_th);
 
@@ -1860,7 +1864,7 @@ bool should_numa_migrate_memory(struct task_struct *p, struct folio *folio,
 		latency = numa_hint_fault_latency(folio);
 
 		// 로그 출력 코드 추가
-    	// pr_info("th=%u, l=%u\n", th, latency);
+    	pr_info("th=%u %u\n", th, latency);
 		
 		if (latency >= th)
 			return false;
