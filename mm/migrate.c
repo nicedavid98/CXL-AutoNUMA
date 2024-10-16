@@ -2603,7 +2603,8 @@ int migrate_misplaced_folio(struct folio *folio, struct vm_area_struct *vma,
 		count_vm_numa_events(NUMA_PAGE_MIGRATE, nr_succeeded);
 
 		// 변경 부분
-		migrated_pages = nr_succeeded
+		if migrated_pages != 0
+			migrated_pages = nr_succeeded
 
 		if (!node_is_toptier(folio_nid(folio)) && node_is_toptier(node))
 			mod_node_page_state(pgdat, PGPROMOTE_SUCCESS,

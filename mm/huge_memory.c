@@ -1761,7 +1761,7 @@ vm_fault_t do_huge_pmd_numa_page(struct vm_fault *vmf)
 	spin_unlock(vmf->ptl);
 	writable = false;
 
-	migrated = migrate_misplaced_folio(folio, vma, target_nid);
+	migrated = migrate_misplaced_folio(folio, vma, target_nid, 0);
 	if (migrated) {
 		flags |= TNF_MIGRATED;
 		nid = target_nid;

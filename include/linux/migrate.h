@@ -143,7 +143,7 @@ const struct movable_operations *page_movable_ops(struct page *page)
 
 #ifdef CONFIG_NUMA_BALANCING
 int migrate_misplaced_folio(struct folio *folio, struct vm_area_struct *vma,
-			   int node);
+			   int node, int *migrated_pages);
 #else
 static inline int migrate_misplaced_folio(struct folio *folio,
 					 struct vm_area_struct *vma, int node)
