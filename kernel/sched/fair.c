@@ -1864,7 +1864,7 @@ bool should_numa_migrate_memory(struct task_struct *p, struct folio *folio,
 		latency = numa_hint_fault_latency(folio);
 
 		// 로그 출력 코드 추가
-    	pr_info("th=%u %u\n", th, latency);
+    	// pr_info("th=%u %u\n", th, latency);
 		
 		if (latency >= th)
 			return false;

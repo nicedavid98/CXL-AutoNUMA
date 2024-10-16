@@ -4916,6 +4916,9 @@ int numa_migrate_prep(struct folio *folio, struct vm_area_struct *vma,
 	return mpol_misplaced(folio, vma, addr);
 }
 
+
+#include <linux/ktime.h>  // ktime API 사용을 위해 추가
+#include <linux/printk.h>  // pr_info 사용을 위해 추가
 static vm_fault_t do_numa_page(struct vm_fault *vmf)
 {
 	struct vm_area_struct *vma = vmf->vma;
@@ -4926,6 +4929,14 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	int target_nid;
 	pte_t pte, old_pte;
 	int flags = 0;
+
+	ktime_t start_time, end_time;  // 타이머 변수 선언
+	s64 migration_time_ns = 0;     // 마이그레이션 시간 (나노초)
+	int migrated_pages = 0;        // 마이그레이션된 페이지 개수 카운터
+
+
+	/* 마이그레이션 시작 시간 측정 */
+	start_time = ktime_get();
 
 	/*
 	 * The "pte" at this point cannot be used safely without
@@ -4996,10 +5007,18 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	pte_unmap_unlock(vmf->pte, vmf->ptl);
 	writable = false;
 
+	// Page Migration 오버헤드 측정을 위한 코드 추가
+	unsigned long nr_succeed_before = node_page_state(pgdat, PGPROMOTE_SUCCESS)
+
 	/* Migrate to the requested node */
 	if (migrate_misplaced_folio(folio, vma, target_nid)) {
 		nid = target_nid;
 		flags |= TNF_MIGRATED;
+
+		// Page Migration 오버헤드 측정을 위한 코드 추가
+		unsigned long nr_succeed_after = node_page_state(pgdat, PGPROMOTE_SUCCESS)
+		migrated_pages = nr_succeed_after - nr_succeed_before
+
 	} else {
 		flags |= TNF_MIGRATE_FAIL;
 		vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,
@@ -5012,6 +5031,13 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 		}
 		goto out_map;
 	}
+
+	/* 마이그레이션 종료 시간 측정 */
+	end_time = ktime_get();
+	migration_time_ns = ktime_to_ns(ktime_sub(end_time, start_time));
+
+	/* 마이그레이션 시간과 페이지 개수 로그 출력 코드 추가 */
+	pr_info("nr: %d, %lld ns\n", migrated_pages, migration_time_ns);
 
 out:
 	if (nid != NUMA_NO_NODE)
