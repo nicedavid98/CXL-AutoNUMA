@@ -4933,7 +4933,7 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	ktime_t start_time, end_time;  // 타이머 변수 선언
 	s64 migration_time_ns = 0;     // 마이그레이션 시간 (나노초)
 	int migrated_pages = 0;        // 마이그레이션된 페이지 개수 카운터
-
+	
 
 	/* 마이그레이션 시작 시간 측정 */
 	start_time = ktime_get();
@@ -5008,6 +5008,7 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	writable = false;
 
 	// Page Migration 오버헤드 측정을 위한 코드 추가
+	pg_data_t *pgdat = NODE_DATA(nid);
 	unsigned long nr_succeed_before = node_page_state(pgdat, PGPROMOTE_SUCCESS)
 
 	/* Migrate to the requested node */
