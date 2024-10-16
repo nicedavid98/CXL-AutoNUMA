@@ -5007,19 +5007,11 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	pte_unmap_unlock(vmf->pte, vmf->ptl);
 	writable = false;
 
-	// Page Migration 오버헤드 측정을 위한 코드 추가
-	pg_data_t *pgdat = NODE_DATA(nid);
-	unsigned long nr_succeed_before = node_page_state(pgdat, PGPROMOTE_SUCCESS)
 
 	/* Migrate to the requested node */
-	if (migrate_misplaced_folio(folio, vma, target_nid)) {
+	if (migrate_misplaced_folio(folio, vma, target_nid, &migrated_pages)) {
 		nid = target_nid;
 		flags |= TNF_MIGRATED;
-
-		// Page Migration 오버헤드 측정을 위한 코드 추가
-		unsigned long nr_succeed_after = node_page_state(pgdat, PGPROMOTE_SUCCESS)
-		migrated_pages = nr_succeed_after - nr_succeed_before
-
 	} else {
 		flags |= TNF_MIGRATE_FAIL;
 		vmf->pte = pte_offset_map_lock(vma->vm_mm, vmf->pmd,

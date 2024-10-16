@@ -2552,8 +2552,10 @@ static int numamigrate_isolate_folio(pg_data_t *pgdat, struct folio *folio)
  * node. Caller is expected to have an elevated reference count on
  * the folio that will be dropped by this function before returning.
  */
+
+// do_numa_page에서 마이그레이션 된 페이지 개수를 트래킹하기 위한 변경 
 int migrate_misplaced_folio(struct folio *folio, struct vm_area_struct *vma,
-			    int node)
+			    int node, int *migrated_pages)
 {
 	pg_data_t *pgdat = NODE_DATA(node);
 	int isolated;
@@ -2599,6 +2601,10 @@ int migrate_misplaced_folio(struct folio *folio, struct vm_area_struct *vma,
 	}
 	if (nr_succeeded) {
 		count_vm_numa_events(NUMA_PAGE_MIGRATE, nr_succeeded);
+
+		// 변경 부분
+		migrated_pages = nr_succeeded
+
 		if (!node_is_toptier(folio_nid(folio)) && node_is_toptier(node))
 			mod_node_page_state(pgdat, PGPROMOTE_SUCCESS,
 					    nr_succeeded);
