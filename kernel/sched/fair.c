@@ -1820,8 +1820,11 @@ static void numa_promotion_adjust_threshold(struct pglist_data *pgdat,
 		th = pgdat->nbp_threshold ? : ref_th;
 		if (diff_cand > ref_cand * 11 / 10)
 			th = max(th - unit_th, unit_th);
+		// th값이 어디까지 가는지 실험..
 		else if (diff_cand < ref_cand * 9 / 10)
-			th = min(th + unit_th, ref_th * 2);
+			th = min(th + unit_th, ref_th * 10);
+		
+		
 		pgdat->nbp_th_nr_cand = nr_cand;
 		pgdat->nbp_threshold = th;
 	}
