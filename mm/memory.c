@@ -5030,7 +5030,7 @@ static vm_fault_t do_numa_page(struct vm_fault *vmf)
 	migration_time_ns = ktime_to_ns(ktime_sub(end_time, start_time));
 
 	/* 마이그레이션 시간과 페이지 개수 로그 출력 코드 추가 */
-	pr_info("nr: %d, %lld ns\n", migrated_pages, migration_time_ns);
+	// pr_info("nr: %d, %lld ns\n", migrated_pages, migration_time_ns);
 
 out:
 	if (nid != NUMA_NO_NODE)
