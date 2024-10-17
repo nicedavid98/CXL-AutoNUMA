@@ -1823,10 +1823,11 @@ static void numa_promotion_adjust_threshold(struct pglist_data *pgdat,
 		// th값이 어디까지 가는지 실험..
 		else if (diff_cand < ref_cand * 9 / 10)
 			th = min(th + unit_th, ref_th * 10);
-		
-		
 		pgdat->nbp_th_nr_cand = nr_cand;
 		pgdat->nbp_threshold = th;
+
+		// 로그 출력 코드 추가
+    	pr_info("th=%u\n", th);
 	}
 }
 
@@ -1855,19 +1856,18 @@ bool should_numa_migrate_memory(struct task_struct *p, struct folio *folio,
 		}
 
 		def_th = sysctl_numa_balancing_hot_threshold;
-		// rate_limit = sysctl_numa_balancing_promote_rate_limit << \
-		// 	(20 - PAGE_SHIFT);
+		rate_limit = sysctl_numa_balancing_promote_rate_limit << \
+			(20 - PAGE_SHIFT);
 		
 		// 오류로 의심되는 부분 수정
-		rate_limit = sysctl_numa_balancing_promote_rate_limit >> \
-			(20 - PAGE_SHIFT);
+		// rate_limit = sysctl_numa_balancing_promote_rate_limit >> \
+		// 	(20 - PAGE_SHIFT);
 		numa_promotion_adjust_threshold(pgdat, rate_limit, def_th);
 
 		th = pgdat->nbp_threshold ? : def_th;
 		latency = numa_hint_fault_latency(folio);
 
-		// 로그 출력 코드 추가
-    	pr_info("th=%u %u\n", th, latency);
+		
 		
 		if (latency >= th)
 			return false;
